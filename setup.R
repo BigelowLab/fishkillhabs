@@ -15,6 +15,10 @@ if ("CRAN" %in% names(packages)){
   }
 }
 
+# load packages
+suppressPackageStartupMessages({
+  for (package in packages$CRAN) library(package, character.only = TRUE)
+})
 
 # Next we check the 'functions' directory for ".R" files and source those
 for (f in list.files("functions", pattern = glob2rx("*.R"), full.names = TRUE)) {
