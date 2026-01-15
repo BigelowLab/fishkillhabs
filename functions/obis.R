@@ -83,8 +83,7 @@ fetch_obis = function(scientificname = "Margalefidinium polykrikoides",
   xx = lapply(scientificname,
               function(species){
                 x = robis::occurrence(scientificname = species,
-                                      geometry = geometry) |>
-                  dplyr::select(dplyr::all_of(fields))
+                                      geometry = geometry)
                 if (tidy) x = tidy_obis(x, fields = fields, crs = crs)
                 sf::write_sf(x, 
                              file.path(output_path, 
@@ -96,8 +95,10 @@ fetch_obis = function(scientificname = "Margalefidinium polykrikoides",
 
 
 
-read_obis = function(scientificname = "Mola mola",
-                     path = data_path("obis")){
+read_obis = function(scientificname = "Karenia mikimotoi",
+                     path = data_path("obis"),
+                     maxdepth = 500,
+                     maxdistance = 20000){
   
   #' Read one or more obis data files
   #' 
@@ -111,7 +112,10 @@ read_obis = function(scientificname = "Mola mola",
                                      sprintf("%s.gpkg", gsub(" ", "_", species, fixed = TRUE)))
                 sf::read_sf(filename)
               }) |>
-    dplyr::bind_rows()
+    dplyr::bind_rows() |>
+    dplyr::filter(between(bathymetry, 0, !!maxdepth), 
+                  between(shoredistance, 0, !!maxdistance),
+                  !is.na(eventDate))
   return(xx)
 }
 

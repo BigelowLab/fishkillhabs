@@ -2,46 +2,47 @@
 
 source("setup.R")
 
-species = "Margalefidinium polykrikoides"
-x <- read_obis(species)
+# Climate envelope analysis
 
-xx <- mutate(x, month = format(eventDate, format = "%m")) |>
-  filter(!is.na(month), shoredistance < 21000) 
+mp <- read_obis("Margalefidinium polykrikoides")
 
-# some shoredistances negative actually inshore
+find_climate_env(mp)
+plot_climate_env(mp)
+
+
+ha <- read_obis("Heterosigma akashiwo")
+
+find_climate_env(ha)
+plot_climate_env(ha)
+
+
+ns <- read_obis("Noctiluca scintillans")
+
+find_climate_env(ns)
+plot_climate_env(ns)
+
+
+km <- read_obis("Karenia mikimotoi")
+
+find_climate_env(km)
+plot_climate_env(km)
+
+
+kb <- read_obis("Karenia brevis")
+
+find_climate_env(kb)
+plot_climate_env(kb)
+
+
+# example occurence plot
 
 world <- ne_countries(scale = "medium", returnclass = "sf")
 
 ggplot(data = world) +
   geom_sf() +
-  geom_sf(data=x, color="red", size=1) +
-  labs(x = element_blank(), y=element_blank(), title = paste("All OBIS", species, "occurrences", sep=" ")) +
-  theme_bw()
-
-ggplot() +
-  geom_sf(color="red", size=1) +
-  geom_sf(data = world) +
-  labs(x = element_blank(), y=element_blank()) +
+  geom_sf(data=kb, color="red", size=1) +
   theme_bw()
 
 
-monthly_occurence <- group_by(xx, month) |>
-  summarise(min_sst = min(sst, na.rm=TRUE),
-            max_sst = max(sst, na.rm=TRUE),
-            min_sss = min(sss, na.rm=TRUE),
-            max_sss = max(sss, na.rm=TRUE))
-
-ggplot(monthly_occurence) +
-  geom_sf(color="red", size=1) +
-  geom_sf(data = world) +
-  labs(x = element_blank(), y=element_blank()) +
-  theme_bw() +
-  facet_wrap(vars(month))
-  
-
-pivot_longer(xx, cols = c(sst, sss)) |>
-  ggplot(aes(x=month, y=value)) +
-  geom_boxplot() +
-  facet_grid(cols = vars(name))
 
 

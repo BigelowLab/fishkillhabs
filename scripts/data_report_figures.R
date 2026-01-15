@@ -1,15 +1,8 @@
 
 
-suppressPackageStartupMessages({
-  library(dplyr)
-  library(ggplot2)
-  library(sf)
-  library(rnaturalearth)
-  library(rnaturalearthdata)
-})
+source("setup.R")
 
-
-h = read_csv("~/Documents/data/haedat/haedat_search.csv")
+h = read_csv(file.path(ROOT_DATA_PATH, "haedat_search.csv"))
 
 glimpse(h)
 
