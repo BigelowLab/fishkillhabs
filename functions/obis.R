@@ -115,7 +115,8 @@ read_obis = function(scientificname = "Karenia mikimotoi",
     dplyr::bind_rows() |>
     dplyr::filter(between(bathymetry, 0, !!maxdepth), 
                   between(shoredistance, 0, !!maxdistance),
-                  !is.na(eventDate))
+                  !is.na(eventDate)) |>
+    dplyr::mutate(month = as.numeric(format(eventDate, format="%m")))
   return(xx)
 }
 
