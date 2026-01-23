@@ -31,4 +31,11 @@ for (month in 1:12) {
 
 
 
+# bathymetry
+
+bathy = read_stars("/mnt/ecocast/projectdata/fishkillhabs/cmems_mod_glo_phy_my_0.083deg_static_1769099497646.nc") |>
+  st_set_crs(4326)
+
+write_stars(bathy, "/mnt/ecocast/projectdata/fishkillhabs/bathy.tif", layer=1)
+
 
