@@ -2,8 +2,7 @@
 
 source("setup.R")
 
-species = "Karenia mikimotoi"
-#species = "Margalefidinium polykrikoides"
+species = "Noctiluca scintillans"
 
 obs <- read_obis(species) |>
   mutate(month = factor(format(eventDate, format="%b"), levels = month.abb))
@@ -50,7 +49,7 @@ ggplot() +
           alpha = 0.2, 
           shape = "circle small", 
           size = 1) +
-  geom_stars(data = coast, col = "orange") +
+  geom_sf(data = coast, col = "orange") +
   geom_text(data = thinned_counts,
             mapping = aes(x = 90, 
                           y = 120, 
@@ -82,18 +81,18 @@ x = dplyr::mutate(x, {{ name }} := 1) |>
 bias_map = aggregate(x, v, FUN = length) |>
   stars::st_rasterize(template = y, align = TRUE)
 
-#ggplot() +
-  #geom_stars(data = bias_map, aes(fill = count)) +
-  #scale_fill_viridis_b(na.value = "transparent") +
-  #geom_sf(data = coast, col = "orange") + 
-  #labs(x = "Longitude", y = "Latitude", title = "Bias map using all observations")
+ggplot() +
+  geom_stars(data = bias_map, aes(fill = count)) +
+  scale_fill_viridis_b(na.value = "transparent") +
+  geom_sf(data = coast, col = "orange") + 
+  labs(x = "Longitude", y = "Latitude", title = "Bias map using all observations")
 
 nback_avg = mean(all_counts$n) |>
   round()
 nback_avg
 
 
-obsbkg = sapply(seq(1, 12),
+obsbkg = sapply(month.abb,
                 function(mon){ 
                   temp_x = thinned_obs |> filter(month == mon)
                   sample_background(temp_x, # <- just this month
@@ -103,10 +102,22 @@ obsbkg = sapply(seq(1, 12),
                                     n = nback_avg) |>   # <-- how many points
                     mutate(month = mon, .before = 1)
                 }, simplify = FALSE) |>
-  bind_rows() 
+  bind_rows() |>
   mutate(month = factor(month, levels = month.abb))
 obsbkg 
 
 count(st_drop_geometry(obsbkg), month, class)
 
+path = file.path(ROOT_DATA_PATH)
+spname = gsub(" ", "_", species, fixed = TRUE)
+fname = if (is.null(version)){
+  sprintf("%s-model_input.gpkg", spname)
+} else {
+  sprintf("%s-%s-model_input.gpkg", spname, version)
+}
+filename = file.path(path, fname)
+x = sf::write_sf(obsbkg, filename)
+invisible(x)
 
+model_input = sf::read_sf(filename)
+"/mnt/ecocast/projectdata/fishkillhabs/Noctiluca_scintillans-model_input.gpkg"

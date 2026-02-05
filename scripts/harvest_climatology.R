@@ -19,7 +19,7 @@ a = read_stars("/mnt/ecocast/projectdata/fishkillhabs/climatology/so_1.tif")
 b = read_stars("/mnt/ecocast/projectdata/fishkillhabs/climatology/thetao_1.tif")
 
 
-# all months
+# all individual month climatologies
 for (month in 1:12) {
   z <- st_set_crs(x, 4326) |>
     slice("time", month) |>
@@ -29,6 +29,18 @@ for (month in 1:12) {
   write_stars(z, paste("/mnt/ecocast/projectdata/fishkillhabs/climatology/so_", month, ".tif", sep=""), layer = 2)
 }
 
+# save monthly sst
+
+st_set_crs(x, 4326) |> 
+  slice("depth", 1) |> 
+  write_stars("/mnt/ecocast/projectdata/fishkillhabs/climatology/mon_sst.tif", layer=1)
+
+
+# save monthly salinity
+
+st_set_crs(x, 4326) |> 
+  slice("depth", 1) |> 
+  write_stars("/mnt/ecocast/projectdata/fishkillhabs/climatology/mon_sss.tif", layer=2)
 
 
 # bathymetry
