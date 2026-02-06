@@ -3,7 +3,7 @@
 # CRAN packages to load
 packages = list(
   CRAN = c("remotes", "ggplot2", "readr", "tidyr", "rnaturalearth", "robis", 
-            "sf", "dplyr", "patchwork", "stars", "tidysdm")
+            "sf", "dplyr", "patchwork", "stars", "tidysdm", "effectplots")
 )
 
 # check for prior installations and install locally as needed

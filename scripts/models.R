@@ -2,17 +2,14 @@
 
 source("setup.R")
 
-month_as_number = function(x) {
-  lut = seq_along(month.abb) |>
-    as.numeric() |>
-    rlang::set_names(month.abb)  
-  
-  lut[x]
-}
+species = "Noctiluca scintillans"
 
-model_input = model_input |>
-  mutate(month = month_as_number(month),
-         depth = log(depth)) |>
+cfg = read_configuration(scientificname = species, version = "v1")
+model_input = read_model_input(scientificname = species, 
+                               version = "v1",
+                               log_me = c("depth")) |>
+  dplyr::mutate(month = month_as_number(.data$month)) |>
+  select(all_of(c("class", cfg$keep))) |>
   drop_na()
 
 
@@ -86,6 +83,23 @@ wflow <- wflow |>
                grid = 3,
                metrics = metrics, 
                verbose = TRUE)
+
+## i	No tuning parameters. `fit_resamples()` will be attempted
+## i 1 of 4 resampling: default_glm
+## ✔ 1 of 4 resampling: default_glm (2.6s)
+## i 2 of 4 tuning:     default_rf
+## i Creating pre-processing data to finalize unknown parameter: mtry
+## ✔ 2 of 4 tuning:     default_rf (24m 21.4s)
+## i 3 of 4 tuning:     default_btree
+## i Creating pre-processing data to finalize unknown parameter: mtry
+## → A | warning: Passed invalid argument 'info' - entries on it should be passed as direct arguments. This warning will become an error in a future version., Passed invalid function arguments: nthread. 
+## These should be passed as a list to argument 'params'. Conversion from argument to 'params' entry will be done automatically, but this behavior will become an error in a future version., 
+## Parameter 'watchlist' has been renamed to 'evals'. This warning will become an error in a future version., Argument 'objective' is only for custom objectives. For built-in objectives, 
+## pass the objective under 'params'. This warning will become an error in a future version.
+## There were issues with some computations   A: x15
+## ✔ 3 of 4 tuning:     default_btree (2m 31.2s)
+## i 4 of 4 tuning:     default_maxent
+## ✔ 4 of 4 tuning:     default_maxent (1m 7.7s)
 
 autoplot(wflow)
 

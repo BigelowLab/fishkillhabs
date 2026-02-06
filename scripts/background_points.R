@@ -2,10 +2,9 @@
 
 source("setup.R")
 
-species = "Noctiluca scintillans"
+species = "Margalefidinium polykrikoides"
 
-obs <- read_obis(species) |>
-  mutate(month = factor(format(eventDate, format="%b"), levels = month.abb))
+obs <- read_obis(species)
 
 obs
 
@@ -59,27 +58,7 @@ ggplot() +
   facet_wrap(~month)
 
 
-## bias_map = rasterize_point_density(obs, mask)
-x=obs
-y=mask
-name = "count"
-y = stars:::st_upfront(y)
-y = y[1]
-d = dim(y)
-if(length(d) > 2){
-  y = dplyr::slice(y, names(d)[3], 1)  
-}
-
-v = sf::st_as_sf(y)
-# trim the points to just a "name" attribute
-x = dplyr::mutate(x, {{ name }} := 1) |>
-  dplyr::select(dplyr::all_of(name))
-
-# aggregate by counting the instances of x in each element of y 
-# (or the polygonized-by-cell "v" version) and then cast back to 
-# the template raster
-bias_map = aggregate(x, v, FUN = length) |>
-  stars::st_rasterize(template = y, align = TRUE)
+bias_map = rasterize_point_density(obs, mask)
 
 ggplot() +
   geom_stars(data = bias_map, aes(fill = count)) +
@@ -109,4 +88,4 @@ obsbkg
 count(st_drop_geometry(obsbkg), month, class)
 
 
-write_model_input(obsbkg, scientificname = "Noctiluca scintillans")
+write_model_input(obsbkg, scientificname = species)

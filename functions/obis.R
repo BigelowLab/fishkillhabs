@@ -96,9 +96,7 @@ fetch_obis = function(scientificname = "Margalefidinium polykrikoides",
 
 
 read_obis = function(scientificname = "Karenia mikimotoi",
-                     path = data_path("obis"),
-                     maxdepth = 500,
-                     maxdistance = 20000){
+                     path = data_path("obis")){
   
   #' Read one or more obis data files
   #' 
@@ -113,10 +111,9 @@ read_obis = function(scientificname = "Karenia mikimotoi",
                 sf::read_sf(filename)
               }) |>
     dplyr::bind_rows() |>
-    dplyr::filter(between(bathymetry, 0, !!maxdepth), 
-                  between(shoredistance, 0, !!maxdistance),
-                  !is.na(eventDate)) |>
-    dplyr::mutate(month = as.numeric(format(eventDate, format="%m")))
+    dplyr::filter(!is.na(eventDate)) |>
+    dplyr::mutate(month = factor(month, levels = month.abb))
+  
   return(xx)
 }
 
