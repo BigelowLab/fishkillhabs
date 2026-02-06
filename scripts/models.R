@@ -1,5 +1,6 @@
 # Initial SDM method test
 
+source("setup.R")
 
 month_as_number = function(x) {
   lut = seq_along(month.abb) |>
@@ -88,3 +89,23 @@ wflow <- wflow |>
 
 autoplot(wflow)
 
+model_fits = workflowset_selectomatic(wflow, model_input_split,
+                                      filename = "Noctiluca-scintillans-v1-model_fits", # make this dynamic
+                                      path = data_path("models"))
+model_fits
+
+model_fit_metrics(model_fits)
+
+model_fit_confmat(model_fits)
+
+model_fit_roc_auc(model_fits)
+
+model_fit_varimp_plot(model_fits)
+
+rf = model_fits |>
+  filter(wflow_id == "default_rf")
+rf
+
+autoplot(rf$splits[[1]])
+
+model_fit_pdp(model_fits, wid = "default_btree", title = "Boosted Tree")

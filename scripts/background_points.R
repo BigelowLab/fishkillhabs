@@ -108,16 +108,5 @@ obsbkg
 
 count(st_drop_geometry(obsbkg), month, class)
 
-path = file.path(ROOT_DATA_PATH)
-spname = gsub(" ", "_", species, fixed = TRUE)
-fname = if (is.null(version)){
-  sprintf("%s-model_input.gpkg", spname)
-} else {
-  sprintf("%s-%s-model_input.gpkg", spname, version)
-}
-filename = file.path(path, fname)
-x = sf::write_sf(obsbkg, filename)
-invisible(x)
 
-model_input = sf::read_sf(filename)
-"/mnt/ecocast/projectdata/fishkillhabs/Noctiluca_scintillans-model_input.gpkg"
+write_model_input(obsbkg, scientificname = "Noctiluca scintillans")
