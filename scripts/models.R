@@ -2,7 +2,7 @@
 
 source("setup.R")
 
-species = "Noctiluca scintillans"
+species = "Heterosigma akashiwo"
 
 cfg = read_configuration(scientificname = species, version = "v1")
 model_input = read_model_input(scientificname = species, 

@@ -2,7 +2,7 @@
 
 source("setup.R")
 
-species = "Margalefidinium polykrikoides"
+species = "Karenia mikimotoi"
 
 obs <- read_obis(species)
 
