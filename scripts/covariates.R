@@ -2,34 +2,18 @@
 
 source("setup.R")
 
-species = "Noctiluca scintillans"
+species = "Karenia mikimotoi"
 
 model_input = read_model_input(scientificname = species)
 
-sst = stars::read_stars("/mnt/ecocast/projectdata/fishkillhabs/climatology/mon_sst.tif", proxy=FALSE) |>
-  stars::st_set_dimensions("band",
-                           values = month.abb,
-                           names = "month")
-names(sst) = c("sst")
-sss = stars::read_stars("/mnt/ecocast/projectdata/fishkillhabs/climatology/mon_sss.tif", proxy=FALSE) |>
-  stars::st_set_dimensions("band",
-                           values = month.abb,
-                           names = "month")
-names(sss) = c("sss")
-
-env <- c(sst, sss, tolerance = 1e-06, along=NA_integer_)
+env = read_covariates(depth = FALSE)
 
 pairs(env)
 
 keep = filter_collinear(env, method = "cor_caret", cutoff = 0.65)
 keep = c("depth", "month", keep)
 
-depth = read_stars("/mnt/ecocast/projectdata/fishkillhabs/bathy.tif")
-names(depth) = c("depth")
-dd = sapply(month.abb, function(mon) {depth}, simplify = FALSE)
-depth = do.call(c, append(dd, list(along = list(month = month.abb))))
-
-present = c(env, depth, tolerance = 1e-06, along=NA_integer_)
+present = read_covariates(depth = TRUE)
 
 present
 

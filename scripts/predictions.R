@@ -8,25 +8,7 @@ cfg = read_configuration(scientificname = species,
                          version = "v1", 
                          path = data_path("models"))
 
-sst = stars::read_stars("/mnt/ecocast/projectdata/fishkillhabs/climatology/mon_sst.tif", proxy=FALSE) |>
-  stars::st_set_dimensions("band",
-                           values = month.abb,
-                           names = "month")
-names(sst) = c("sst")
-sss = stars::read_stars("/mnt/ecocast/projectdata/fishkillhabs/climatology/mon_sss.tif", proxy=FALSE) |>
-  stars::st_set_dimensions("band",
-                           values = month.abb,
-                           names = "month")
-names(sss) = c("sss")
-
-env <- c(sst, sss, tolerance = 1e-06, along=NA_integer_)
-
-depth = read_stars("/mnt/ecocast/projectdata/fishkillhabs/bathy.tif")
-names(depth) = c("depth")
-dd = sapply(month.abb, function(mon) {depth}, simplify = FALSE)
-depth = do.call(c, append(dd, list(along = list(month = month.abb))))
-
-present_conditions = c(env, depth, tolerance = 1e-06, along=NA_integer_)
+present_conditions = read_covariates()
 
 model_fits = read_model_fit(filename = "Noctiluca-scintillans-v1-model_fits")
 model_fits

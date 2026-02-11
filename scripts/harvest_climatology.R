@@ -3,7 +3,7 @@
 library(stars)
 library(dplyr)
 
-file = "/mnt/ecocast/projectdata/fishkillhabs/cmems_mod_glo_phy_my_0.083deg-climatology_P1M-m.nc"
+file = "/mnt/ecocast/projectdata/fishkillhabs/climatology/cmems_mod_glo_phy_my_0.083deg-climatology_P1M-m.nc"
 
 # example
 
@@ -50,4 +50,11 @@ bathy = read_stars("/mnt/ecocast/projectdata/fishkillhabs/cmems_mod_glo_phy_my_0
 
 write_stars(bathy, "/mnt/ecocast/projectdata/fishkillhabs/bathy.tif", layer=1)
 
+# mixed layer depth
 
+file = "/mnt/ecocast/projectdata/fishkillhabs/cmems_mod_glo_phy_my_0.083deg-climatology_P1M-m_1770750012495.nc"
+
+x <- read_stars(file, proxy=FALSE)
+
+z <- st_set_crs(x, 4326) |>
+  slice("time", 1) 

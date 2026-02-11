@@ -14,6 +14,7 @@ coast = rnaturalearth::ne_coastline(scale = 50, returnclass = "sf") |>
 mask = read_stars("/mnt/ecocast/projectdata/fishkillhabs/bathy.tif") |>
   set_names("depth") |>
   mutate(depth = ifelse(between(depth, 0, 500), 1, NA))
+# mask = read_mask()
 
 
 all_counts = count(st_drop_geometry(obs), month)
@@ -85,7 +86,9 @@ obsbkg = sapply(month.abb,
   mutate(month = factor(month, levels = month.abb))
 obsbkg 
 
-count(st_drop_geometry(obsbkg), month, class)
+obsbkg_counts = count(st_drop_geometry(obsbkg), month, class)
+
+obsbkg_counts
 
 
 write_model_input(obsbkg, scientificname = species)
