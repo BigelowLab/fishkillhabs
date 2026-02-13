@@ -2,9 +2,10 @@
 
 source("setup.R")
 
-species = "Heterosigma akashiwo"
+species = "Karenia brevis"
 
 cfg = read_configuration(scientificname = species, version = "v1")
+
 model_input = read_model_input(scientificname = species, 
                                version = "v1",
                                log_me = c("depth")) |>
@@ -16,6 +17,7 @@ model_input = read_model_input(scientificname = species,
 model_input_split = spatial_initial_split(model_input, 
                                           prop = 1 / 5,     
                                           strategy = spatial_block_cv)
+
 model_input_split
 
 autoplot(model_input_split)
@@ -84,27 +86,18 @@ wflow <- wflow |>
                metrics = metrics, 
                verbose = TRUE)
 
-## i	No tuning parameters. `fit_resamples()` will be attempted
-## i 1 of 4 resampling: default_glm
-## ✔ 1 of 4 resampling: default_glm (2.6s)
-## i 2 of 4 tuning:     default_rf
-## i Creating pre-processing data to finalize unknown parameter: mtry
-## ✔ 2 of 4 tuning:     default_rf (24m 21.4s)
-## i 3 of 4 tuning:     default_btree
-## i Creating pre-processing data to finalize unknown parameter: mtry
-## → A | warning: Passed invalid argument 'info' - entries on it should be passed as direct arguments. This warning will become an error in a future version., Passed invalid function arguments: nthread. 
-## These should be passed as a list to argument 'params'. Conversion from argument to 'params' entry will be done automatically, but this behavior will become an error in a future version., 
-## Parameter 'watchlist' has been renamed to 'evals'. This warning will become an error in a future version., Argument 'objective' is only for custom objectives. For built-in objectives, 
-## pass the objective under 'params'. This warning will become an error in a future version.
-## There were issues with some computations   A: x15
-## ✔ 3 of 4 tuning:     default_btree (2m 31.2s)
-## i 4 of 4 tuning:     default_maxent
-## ✔ 4 of 4 tuning:     default_maxent (1m 7.7s)
+## Warning message:
+##   There are existing options that are being modified
+## default_glm: 'resamples', 'grid', 'metrics'
+## default_rf: 'resamples', 'grid', 'metrics'
+## default_btree: 'resamples', 'grid', 'metrics'
+## default_maxent: 'resamples', 'grid', 'metrics' 
 
 autoplot(wflow)
 
-model_fits = workflowset_selectomatic(wflow, model_input_split,
-                                      filename = "Noctiluca-scintillans-v1-model_fits", # make this dynamic
+model_fits = workflowset_selectomatic(wflow, 
+                                      model_input_split,
+                                      filename = "Karenia-brevis-v1-model_fits", # make this dynamic
                                       path = data_path("models"))
 model_fits
 

@@ -2,7 +2,7 @@
 
 source("setup.R")
 
-species = "Noctiluca scintillans"
+species = "Karenia brevis"
 
 cfg = read_configuration(scientificname = species,
                          version = "v1", 
@@ -10,7 +10,7 @@ cfg = read_configuration(scientificname = species,
 
 present_conditions = read_covariates()
 
-model_fits = read_model_fit(filename = "Noctiluca-scintillans-v1-model_fits")
+model_fits = read_model_fit(filename = "Karenia-brevis-v1-model_fits")
 model_fits
 
 nowcast = predict_stars(model_fits, present_conditions)

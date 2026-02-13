@@ -28,3 +28,18 @@ read_covariates <- function(depth=TRUE) {
   
   return(r)
 }
+
+
+set_point = function(x, point = NA){
+  #' Set the "point" value for a stars object
+  #' 
+  #' @export
+  #' @param x stars object
+  #' @param point logical possible values are TRUE, FALSE and NA
+  #' @return the input with x and y dim point values modified
+  d <- stars::st_dimensions(x)
+  d[[1]]$point <- point
+  d[[2]]$point <- point
+  stars::st_dimensions(x) <- d
+  x
+}

@@ -2,7 +2,7 @@
 
 source("setup.R")
 
-species = "Karenia mikimotoi"
+species = "Karenia brevis"
 
 model_input = read_model_input(scientificname = species)
 
@@ -11,7 +11,7 @@ env = read_covariates(depth = FALSE)
 pairs(env)
 
 keep = filter_collinear(env, method = "cor_caret", cutoff = 0.65)
-keep = c("depth", "month", keep)
+keep = c("depth", keep)
 
 present = read_covariates(depth = TRUE)
 
@@ -21,7 +21,8 @@ variables = extract_covars(present, model_input, form = "wide")
 
 variables = variables |>
   mutate(class = model_input$class) |>    # the $ extracts a column 
-  select(-.id)        
+  select(-.id) |>
+  drop_na()
 
 plot_pres_vs_bg(variables |> select(-month), "class")
 

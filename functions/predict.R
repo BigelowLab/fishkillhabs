@@ -60,10 +60,8 @@ predict_stars = function(x, newdata,
     dplyr::rowwise() |>
     dplyr::group_map(
       function(row, key){
-        cat(key)
-        
         mtype = model_fit_spec(row)
-        #cat("mtype", mtype, "\n")
+        cat("mtype", mtype, "\n")
         model = row$.workflow[[1]] |>
           workflows::extract_fit_engine()
         
