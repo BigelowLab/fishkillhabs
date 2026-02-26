@@ -3,11 +3,12 @@
 source("setup.R")
 
 species = "Karenia brevis"
+model_v = "v2"
 
-cfg = read_configuration(scientificname = species, version = "v1")
+cfg = read_configuration(scientificname = species, version = model_v)
 
 model_input = read_model_input(scientificname = species, 
-                               version = "v1",
+                               version = model_v,
                                log_me = c("depth")) |>
   dplyr::mutate(month = month_as_number(.data$month)) |>
   select(all_of(c("class", cfg$keep))) |>
@@ -18,17 +19,15 @@ model_input_split = spatial_initial_split(model_input,
                                           prop = 1 / 5,     
                                           strategy = spatial_block_cv)
 
-model_input_split
-
-autoplot(model_input_split)
+#model_input_split
+#autoplot(model_input_split)
 
 tr_data = training(model_input_split)
 cv_tr_data <- spatial_block_cv(tr_data,
                                v = 5,     
                                cellsize = grid_cellsize(model_input),
-                               offset = grid_offset(model_input) + 0.00001
-)
-autoplot(cv_tr_data)
+                               offset = grid_offset(model_input) + 0.00001)
+#autoplot(cv_tr_data)
 
 one_row_of_training_data = dplyr::slice(tr_data,1)
 rec = recipe(one_row_of_training_data, formula = class ~ .)
@@ -38,16 +37,14 @@ summary(rec)
 
 wflow = workflow_set(
   
-  preproc = list(default = rec), # not much happening in our preprocessor
+  preproc = list(default = rec),
   
-  models = list(                 # but we have 4 models to add
+  models = list(
     
-    # very simple - nothing to tune
     glm = logistic_reg(
       mode = "classification") |>
       set_engine("glm"),
     
-    # two knobs to tune
     rf = rand_forest(
       mtry = tune(),
       trees = tune(),
@@ -55,7 +52,6 @@ wflow = workflow_set(
       set_engine("ranger", 
                  importance = "impurity"),
     
-    # so many things to tune!
     btree = boost_tree(
       mtry = tune(), 
       trees = tune(), 
@@ -66,7 +62,6 @@ wflow = workflow_set(
       mode = "classification") |>
       set_engine("xgboost"),
     
-    # just two again
     maxent = maxent(
       feature_classes = tune(),
       regularization_multiplier = tune(),
@@ -77,7 +72,6 @@ wflow = workflow_set(
 wflow
 
 metrics = sdm_metric_set(yardstick::accuracy)
-metrics
 
 wflow <- wflow |>
   workflow_map("tune_grid",
@@ -93,11 +87,23 @@ wflow <- wflow |>
 ## default_btree: 'resamples', 'grid', 'metrics'
 ## default_maxent: 'resamples', 'grid', 'metrics' 
 
+#i 3 of 4 tuning:     default_btree
+#i Creating pre-processing data to finalize unknown parameter: mtry
+#→ A | warning: Passed invalid argument 'info' - entries on it should be passed as direct arguments. This warning will become an error in a future version., 
+#Passed invalid function arguments: nthread. These should be passed as a list to argument 'params'. Conversion from argument to 'params' entry will be done automatically, 
+#but this behavior will become an error in a future version., Parameter 'watchlist' has been renamed to 'evals'. This warning will become an error in a future version., 
+#Argument 'objective' is only for custom objectives. For built-in objectives, pass the objective under 'params'. This warning will become an error in a future version.
+#There were issues with some computations   A: x15
+
 autoplot(wflow)
 
+#file = "Noctiluca scintillans-v2-model_fits"
+
+file = gsub(" ", "-", sprintf("%s-%s-model_fits", species, model_v))
+file
 model_fits = workflowset_selectomatic(wflow, 
                                       model_input_split,
-                                      filename = "Karenia-brevis-v1-model_fits", # make this dynamic
+                                      filename = file,
                                       path = data_path("models"))
 model_fits
 

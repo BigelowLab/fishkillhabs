@@ -1,27 +1,24 @@
-
 read_covariates <- function(depth=TRUE) {
   
   #' Reads monthly covariates and returns them as a single stars object
   #' @param depth logical, if true includes depth
   #' @returns stars object containing all covariates as attributes along with lat, lon and month dimensions
-  sst = stars::read_stars("/mnt/ecocast/projectdata/fishkillhabs/climatology/mon_sst.tif", proxy=FALSE) |>
-    stars::st_set_dimensions("band",
+  #' 
+
+  path = andreas::copernicus_path("world", "GLOBAL_MULTIYEAR_PHY_001_030")
+  
+  db = andreas::read_database(path) |>
+    dplyr::filter(name %in% c("temp", "mlotst", "sal"), 
+                  depth %in% c("sur", "bot", "mld"), 
+                  period == "month-clim")
+  
+  r = andreas::read_andreas(db, path) |>
+    stars::st_set_dimensions("time",
                              values = month.abb,
                              names = "month")
-  names(sst) = c("sst")
-  sss = stars::read_stars("/mnt/ecocast/projectdata/fishkillhabs/climatology/mon_sss.tif", proxy=FALSE) |>
-    stars::st_set_dimensions("band",
-                             values = month.abb,
-                             names = "month")
-  names(sss) = c("sss")
-  
-  r = c(sst, sss, tolerance = 1e-06, along=NA_integer_)
-  
+
   if (depth) {
-    depth = read_stars("/mnt/ecocast/projectdata/fishkillhabs/bathy.tif")
-    names(depth) = c("depth")
-    dd = sapply(month.abb, function(mon) {depth}, simplify = FALSE)
-    depth = do.call(c, append(dd, list(along = list(month = month.abb))))
+    depth = read_depth(months = TRUE)
     
     r = c(r, depth, tolerance = 1e-06, along=NA_integer_)
   }
@@ -29,6 +26,18 @@ read_covariates <- function(depth=TRUE) {
   return(r)
 }
 
+
+read_depth <- function(months = FALSE) {
+  depth = read_stars("/mnt/ecocast/projectdata/fishkillhabs/bathy.tif")
+  names(depth) = c("depth")
+  
+  if (months) {
+    dd = sapply(month.abb, function(mon) {depth}, simplify = FALSE)
+    depth = do.call(c, append(dd, list(along = list(month = month.abb)))) |>
+      set_point(NA)
+  }
+  return(depth)
+}
 
 set_point = function(x, point = NA){
   #' Set the "point" value for a stars object

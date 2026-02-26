@@ -3,6 +3,7 @@
 source("setup.R")
 
 species = "Karenia brevis"
+model_v = "v2"
 
 model_input = read_model_input(scientificname = species)
 
@@ -20,20 +21,21 @@ present
 variables = extract_covars(present, model_input, form = "wide")
 
 variables = variables |>
-  mutate(class = model_input$class) |>    # the $ extracts a column 
+  mutate(class = model_input$class) |> 
   select(-.id) |>
+  #filter(depth <= 500) |>
   drop_na()
 
 plot_pres_vs_bg(variables |> select(-month), "class")
 
 cfg = list(
-  version = "v1",
+  version = model_v,
   scientificname = species,
   background = "average of observations per month",
   keep_vars =  keep)
 
-ok = make_path(data_path("models")) # make a directory for models
+ok = make_path(data_path("models"))
 write_configuration(cfg)
 
-write_model_input(variables, scientificname = species, version = "v1")
+write_model_input(variables, scientificname = species, version = model_v)
 
