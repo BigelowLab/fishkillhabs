@@ -2,7 +2,7 @@
 
 source("setup.R")
 
-species = "Karenia brevis"
+species = "Heterosigma akashiwo"
 model_v = "v2"
 
 cfg = read_configuration(scientificname = species, version = model_v)
@@ -27,7 +27,6 @@ cv_tr_data <- spatial_block_cv(tr_data,
                                v = 5,     
                                cellsize = grid_cellsize(model_input),
                                offset = grid_offset(model_input) + 0.00001)
-#autoplot(cv_tr_data)
 
 one_row_of_training_data = dplyr::slice(tr_data,1)
 rec = recipe(one_row_of_training_data, formula = class ~ .)
@@ -95,12 +94,11 @@ wflow <- wflow |>
 #Argument 'objective' is only for custom objectives. For built-in objectives, pass the objective under 'params'. This warning will become an error in a future version.
 #There were issues with some computations   A: x15
 
-autoplot(wflow)
-
-#file = "Noctiluca scintillans-v2-model_fits"
+#autoplot(wflow)
 
 file = gsub(" ", "-", sprintf("%s-%s-model_fits", species, model_v))
 file
+
 model_fits = workflowset_selectomatic(wflow, 
                                       model_input_split,
                                       filename = file,

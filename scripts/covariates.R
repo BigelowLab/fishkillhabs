@@ -2,7 +2,7 @@
 
 source("setup.R")
 
-species = "Karenia brevis"
+species = "Heterosigma akashiwo"
 model_v = "v2"
 
 model_input = read_model_input(scientificname = species)
@@ -13,6 +13,8 @@ pairs(env)
 
 keep = filter_collinear(env, method = "cor_caret", cutoff = 0.65)
 keep = c("depth", keep)
+
+keep = c("depth","thetao","so","mlotst","bottomT")
 
 present = read_covariates(depth = TRUE)
 

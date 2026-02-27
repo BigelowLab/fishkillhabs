@@ -11,6 +11,8 @@ cfg = read_configuration(scientificname = species,
 
 present_conditions = read_covariates()
 
+mutate(present_conditions, default_btree = ifelse(between(depth, 0, 500), .data$default_btree, NA))
+
 present_conditions = mutate(present_conditions, depth = log10(depth))
 
 model_fits = read_model_fit(filename = "Noctiluca-scintillans-v2-model_fits") |>

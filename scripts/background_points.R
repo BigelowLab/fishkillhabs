@@ -2,7 +2,7 @@
 
 source("setup.R")
 
-species = "Karenia brevis"
+species = "Heterosigma akashiwo"
 
 obs <- read_obis(species)
 
@@ -27,6 +27,8 @@ all_counts = count(st_drop_geometry(obs), month)
 
 all_counts
 
+# thinning and bias map
+
 #thinned_obs = sapply(month.abb,
 #                     function(mon){ 
 #                       temp_x = obs |> filter(month == mon)
@@ -39,9 +41,6 @@ all_counts
 #
 #thinned_counts
 
-thinned_obs = obs
-thinned_counts = all_counts
-
 #bias_map = rasterize_point_density(obs, mask)
 
 nback_avg = mean(all_counts$n) |>
@@ -50,9 +49,8 @@ nback_avg
 
 obsbkg = sapply(month.abb,
                 function(mon){ 
-                  temp_x = thinned_obs |> filter(month == mon)
-                  sample_background(temp_x, # <- just this month
-                                    #bias_map,
+                  temp_x = obs |> filter(month == mon)
+                  sample_background(temp_x,
                                     mask,
                                     method = "random",
                                     return_pres = TRUE,
