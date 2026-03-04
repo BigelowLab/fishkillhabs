@@ -1,48 +1,54 @@
-
+# Climate envelope analysis
 
 source("setup.R")
 
-# Climate envelope analysis
+species = c("Margalefidinium polykrikoides", "Karenia brevis", "Karenia mikimotoi", "Alexandrium catenella",
+            "Noctiluca scintillans", "Heterosigma akashiwo")
 
-mp <- read_obis("Margalefidinium polykrikoides")
+env = read_covariates(depth = TRUE)
 
-find_climate_env(mp)
-plot_climate_env(mp)
+# minimum and maximum of all covariates
+min_max = lapply(species, function(s) {
+  obs <- read_obis(s) |>
+    select(-depth)
+  
+  obs_env=extract_covars(env, obs, form = "wide") |>
+    st_drop_geometry()
+  
+  ce = find_climate_env(obs_env, species=s, month=FALSE)
+  return(ce)
+}) |>
+  bind_rows()
 
+write_csv(min_max, file.path(ROOT_DATA_PATH, "climate_envelope", "minmax_climate_envelope.csv"))
 
-ha <- read_obis("Heterosigma akashiwo")
+# mean +- 1 standard deviation
+mean_1sd = lapply(species, function(s) {
+  obs <- read_obis(s) |>
+    select(-depth)
+  
+  obs_env=extract_covars(env, obs, form = "wide") |>
+    st_drop_geometry()
+  
+  ce = find_climate_env(obs_env, species=s, month=FALSE, method="mean_sd", nsd=1)
+  return(ce)
+}) |>
+  bind_rows()
 
-find_climate_env(ha)
-plot_climate_env(ha)
+write_csv(mean_1sd, file.path(ROOT_DATA_PATH, "climate_envelope", "mean1sd_climate_envelope.csv"))
 
+# mean +- 2 standard deviations
+mean_2sd = lapply(species, function(s) {
+  obs <- read_obis(s) |>
+    select(-depth)
+  
+  obs_env=extract_covars(env, obs, form = "wide") |>
+    st_drop_geometry()
+  
+  ce = find_climate_env(obs_env, species=s, month=FALSE, method="mean_sd", nsd=2)
+  return(ce)
+}) |>
+  bind_rows()
 
-ns <- read_obis("Noctiluca scintillans")
-
-find_climate_env(ns)
-plot_climate_env(ns)
-
-
-km <- read_obis("Karenia mikimotoi")
-
-find_climate_env(km)
-plot_climate_env(km)
-
-
-kb <- read_obis("Karenia brevis")
-
-find_climate_env(kb)
-plot_climate_env(kb)
-
-
-# example occurence plot
-
-world <- ne_countries(scale = "medium", returnclass = "sf")
-
-ggplot(data = world) +
-  geom_sf() +
-  geom_sf(data=kb, color="red", size=1) +
-  theme_bw()
-
-
-
+write_csv(mean_2sd, file.path(ROOT_DATA_PATH, "climate_envelope", "mean2sd_climate_envelope.csv"))
 

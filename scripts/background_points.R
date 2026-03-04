@@ -2,7 +2,7 @@
 
 source("setup.R")
 
-species = "Heterosigma akashiwo"
+species = "Alexandrium catenella"
 
 obs <- read_obis(species)
 

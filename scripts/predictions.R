@@ -5,17 +5,20 @@ source("setup.R")
 species = "Karenia brevis"
 model_v = "v2"
 
+mask = read_mask()
+
 cfg = read_configuration(scientificname = species,
                          version = model_v, 
                          path = data_path("models"))
 
-present_conditions = read_covariates()
+present_conditions = read_covariates() |>
+  mutate(depth = log10(depth))
 
-mutate(present_conditions, default_btree = ifelse(between(depth, 0, 500), .data$default_btree, NA))
+covar_crop = st_crop(present_conditions, mask)
 
-present_conditions = mutate(present_conditions, depth = log10(depth))
+file = gsub(" ", "-", sprintf("%s-%s-model_fits", species, model_v))
 
-model_fits = read_model_fit(filename = "Noctiluca-scintillans-v2-model_fits") |>
+model_fits = read_model_fit(filename = file) |>
   filter(!wflow_id %in% c("default_maxent"))
 model_fits
 
@@ -25,6 +28,8 @@ nowcast
 plot_prediction(nowcast['default_glm'])
 
 plot_prediction(nowcast['default_btree'])
+
+plot_prediction(nowcast['default_rf'])
 
 pa_nowcast = threshold_prediction(nowcast)
 plot_prediction(pa_nowcast['default_rf'])

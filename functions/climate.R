@@ -1,6 +1,50 @@
 
+find_climate_env = function(x, 
+                            species, 
+                            method = c("min_max", "mean_sd")[1], 
+                            month=FALSE,
+                            nsd=1) {
+  
+  if (month) {
+    find_climate_env_month(x, species)
+  } else {
+    switch(method,
+           "min_max" = {
+             summarise(x,
+                       min_sst = min(thetao, na.rm=TRUE),
+                       max_sst = max(thetao, na.rm=TRUE),
+                       min_sss = min(so, na.rm=TRUE),
+                       max_sss = max(so, na.rm=TRUE),
+                       min_mld = min(mlotst, na.rm=TRUE),
+                       max_mld = max(mlotst, na.rm=TRUE),
+                       min_sbt = min(bottomT, na.rm=TRUE),
+                       max_sbt = max(bottomT, na.rm=TRUE)) |>
+               mutate(species = species, .before=min_sst)
+           },
+           "mean_sd" = {
+             vars = c("thetao", "so", "mlotst", "bottomT")
+             s = sapply(vars, function(v) {
+               list(vmean = mean(x[[v]], na.rm=TRUE),
+                    vsd = sd(x[[v]], na.rm=TRUE))
+             }, simplify=FALSE, USE.NAMES=TRUE)
+             
+             summarise(x,
+                       min_sst = s$thetao$vmean-nsd*s$thetao$vsd,
+                       max_sst = s$thetao$vmean+nsd*s$thetao$vsd,
+                       min_sss = s$so$vmean-nsd*s$so$vsd,
+                       max_sss = s$so$vmean+nsd*s$so$vsd,
+                       min_mld = s$mlotst$vmean-nsd*s$mlotst$vsd,
+                       max_mld = s$mlotst$vmean+nsd*s$mlotst$vsd,
+                       min_sbt = s$bottomT$vmean-nsd*s$bottomT$vsd,
+                       max_sbt = s$bottomT$vmean+nsd*s$bottomT$vsd) |>
+               mutate(species = species, .before=min_sst)
+           })
+  }
+  
+}
 
-find_climate_env <- function(x, method = c("min_max", "mean_sd")[1], nsd=1) {
+
+find_climate_env_month <- function(x, species, method = c("min_max", "mean_sd")[1], nsd=1) {
   
   switch(method,
          "min_max" = {
@@ -31,3 +75,15 @@ plot_climate_env <- function(x) {
     facet_grid(cols = vars(name)) +
     scale_x_discrete(limits = month.abb)
 }
+
+
+summarise(x,
+          min_sst = min(thetao, na.rm=TRUE),
+          max_sst = max(thetao, na.rm=TRUE),
+          min_sss = min(so, na.rm=TRUE),
+          max_sss = max(so, na.rm=TRUE),
+          min_mld = min(mlotst, na.rm=TRUE),
+          max_mld = max(mlotst, na.rm=TRUE),
+          min_sbt = min(bottomT, na.rm=TRUE),
+          max_sbt = max(bottomT, na.rm=TRUE)) |>
+  mutate(species = species, .before=min_sst)

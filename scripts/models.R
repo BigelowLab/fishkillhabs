@@ -2,7 +2,7 @@
 
 source("setup.R")
 
-species = "Heterosigma akashiwo"
+species = "Alexandrium catenella"
 model_v = "v2"
 
 cfg = read_configuration(scientificname = species, version = model_v)
@@ -20,7 +20,7 @@ model_input_split = spatial_initial_split(model_input,
                                           strategy = spatial_block_cv)
 
 #model_input_split
-#autoplot(model_input_split)
+autoplot(model_input_split)
 
 tr_data = training(model_input_split)
 cv_tr_data <- spatial_block_cv(tr_data,
