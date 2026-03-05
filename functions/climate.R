@@ -40,7 +40,6 @@ find_climate_env = function(x,
                mutate(species = species, .before=min_sst)
            })
   }
-  
 }
 
 
@@ -76,14 +75,3 @@ plot_climate_env <- function(x) {
     scale_x_discrete(limits = month.abb)
 }
 
-
-summarise(x,
-          min_sst = min(thetao, na.rm=TRUE),
-          max_sst = max(thetao, na.rm=TRUE),
-          min_sss = min(so, na.rm=TRUE),
-          max_sss = max(so, na.rm=TRUE),
-          min_mld = min(mlotst, na.rm=TRUE),
-          max_mld = max(mlotst, na.rm=TRUE),
-          min_sbt = min(bottomT, na.rm=TRUE),
-          max_sbt = max(bottomT, na.rm=TRUE)) |>
-  mutate(species = species, .before=min_sst)

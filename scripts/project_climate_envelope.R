@@ -2,59 +2,73 @@
 
 source("setup.R")
 
-species = "Margalefidinium polykrikoides"
+ce = read_csv(file.path(ROOT_DATA_PATH, "climate_envelope", "mean2sd_climate_envelope.csv")) |>
+  filter(species == "Karenia mikimotoi")
 
-occ <- read_obis(species)
+env = read_covariates()
 
-ce = find_climate_env(st_drop_geometry(occ), method="mean_sd", nsd=1) |>
+m = slice(env, month, "Dec")
 
-bathy = read_stars("/mnt/ecocast/projectdata/fishkillhabs/bathy.tif")
+pred = mutate(m, 
+              pred = ifelse(between(thetao, ce$min_sst, ce$max_sst) & 
+                              between(so, ce$min_sss, ce$max_sss) & 
+                              between(mlotst, ce$min_mld, ce$max_mld) & 
+                              between(bottomT, ce$min_sbt, ce$max_sbt) & 
+                              depth <= 500, 1, 0))
 
-
-for (m in 1:12) {
-  
-  a = read_stars(paste("/mnt/ecocast/projectdata/fishkillhabs/climatology/thetao_", m, ".tif", sep=""))
-  b = read_stars(paste("/mnt/ecocast/projectdata/fishkillhabs/climatology/so_", m, ".tif", sep=""))
-  
-  z <- c(a,b, bathy, tolerance = 1e-06)
-  names(z) = c("sst", "sss", "depth")
-  
-  clim = filter(ce, month == m)
-  
-  preds = mutate(z, pred = ifelse(between(sst, clim$min_sst, clim$max_sst) & between(sss, clim$min_sss, clim$max_sss) & depth <= 500, 1, 0))
-  
-  p = ggplot() + 
-    geom_stars(data=preds, aes(fill=pred)) +
-    theme_bw() +
-    theme(legend.position="none", axis.title = element_blank()) +
-    ggtitle(paste(species, "mean +/- 1 SD: month", m, sep=" ")) #+
-    #coord_sf()
-  
-  outfile = paste(species, m, ".png", sep="")
-  outfile = gsub(" ", "_", outfile)
-  ggsave(file.path("/mnt/ecocast/projectdata/fishkillhabs/predictions", outfile), p, width=8, height=5, units="in")
-}
+ggplot() + 
+  geom_stars(data=pred, aes(fill=pred)) +
+  theme_bw() +
+  #theme(legend.position="none", axis.title = element_blank()) +
+  #facet_wrap(vars(new_dim)) +
+  coord_sf()
 
 
+preds_m = lapply(month.abb,
+                 function(mon){
+                   m = slice(env, month, mon)
+                   
+                   pred = mutate(m, 
+                                 pred = ifelse(between(thetao, ce$min_sst, ce$max_sst) & 
+                                                 between(so, ce$min_sss, ce$max_sss) & 
+                                                 between(mlotst, ce$min_mld, ce$max_mld) & 
+                                                 between(bottomT, ce$min_sbt, ce$max_sbt) & 
+                                                 depth <= 500, 1, 0))
+                   pred["pred"]
+                 })
 
-## a = read_stars("/mnt/ecocast/projectdata/fishkillhabs/climatology/thetao_1.tif")
-## b = read_stars("/mnt/ecocast/projectdata/fishkillhabs/climatology/so_1.tif")
-## bathy = read_stars("/mnt/ecocast/projectdata/fishkillhabs/bathy.tif")
-## 
-## #z <- c(a,b)
-## #names(z) = c("sst", "sss")
-## 
-## z = c(a,b, bathy, tolerance = 1e-06)
-## names(z) = c("sst", "sss", "depth")
-## 
-## preds = mutate(z, pred = ifelse(between(sst, 8.07, 28.5) & between(sss, 7.48, 37.2) & depth <= 500, 1, 0))
-## 
-## plot(preds["pred"])
-## 
-## ggplot() + 
-##  geom_stars(data=preds, aes(fill=pred)) +
-##  theme_bw()
+names(preds_m) = month.abb
 
+r = do.call("c", preds_m)                                                                                                        
+r = st_redimension(r)                                                                                                            
+names(r) = "pred"
+
+
+ggplot() + 
+  geom_stars(data=r, aes(fill=pred)) +
+  theme_bw() +
+  theme(legend.position="none", axis.title = element_blank()) +
+  facet_wrap(vars(new_dim)) +
+  coord_sf()
+
+library(cofbb)
+bb = get_bb("nwa", "sf")
+bb = sf::st_sf(name = "bounding box",
+               geom = sf::st_sfc(bb_as_POLYGON(c(xmin = -88, ymin = 24, xmax = -78, ymax = 32)), crs = 4326))
+
+bb = sf::st_sf(name = "bounding box",
+               geom = sf::st_sfc(bb_as_POLYGON(c(xmin = -13, ymin = 50, xmax = 30, ymax = 75)), crs = 4326))
+
+sf_use_s2(FALSE)
+z = st_crop(r, bb)
+
+
+ggplot() + 
+  geom_stars(data=z, aes(fill=pred)) +
+  theme_bw() +
+  theme(legend.position="none", axis.title = element_blank()) +
+  facet_wrap(vars(new_dim)) +
+  coord_sf()
 
 # project all months in facet plot
 
