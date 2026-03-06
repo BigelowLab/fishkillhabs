@@ -2,8 +2,8 @@
 
 source("setup.R")
 
-ce = read_csv(file.path(ROOT_DATA_PATH, "climate_envelope", "mean2sd_climate_envelope.csv")) |>
-  filter(species == "Karenia mikimotoi")
+ce = read_csv(file.path(ROOT_DATA_PATH, "climate_envelope", "mean1sd_climate_envelope.csv")) |>
+  filter(species == "Heterosigma akashiwo")
 
 env = read_covariates()
 
@@ -23,6 +23,8 @@ ggplot() +
   #facet_wrap(vars(new_dim)) +
   coord_sf()
 
+
+# project all months in facet plot
 
 preds_m = lapply(month.abb,
                  function(mon){
@@ -52,12 +54,22 @@ ggplot() +
   coord_sf()
 
 library(cofbb)
-bb = get_bb("nwa", "sf")
-bb = sf::st_sf(name = "bounding box",
-               geom = sf::st_sfc(bb_as_POLYGON(c(xmin = -88, ymin = 24, xmax = -78, ymax = 32)), crs = 4326))
 
+# northwest atlantic
+bb = get_bb("nwa", "sf")
+
+# florida
+bb = sf::st_sf(name = "bounding box",
+               geom = sf::st_sfc(bb_as_POLYGON(c(xmin = -100, ymin = 24, xmax = -75, ymax = 35)), crs = 4326))
+
+#northeast atlantic
 bb = sf::st_sf(name = "bounding box",
                geom = sf::st_sfc(bb_as_POLYGON(c(xmin = -13, ymin = 50, xmax = 30, ymax = 75)), crs = 4326))
+
+#pacific northwest
+bb = sf::st_sf(name = "bounding box",
+               geom = sf::st_sfc(bb_as_POLYGON(c(xmin = -130, ymin = 40, xmax = -120, ymax = 60)), crs = 4326))
+
 
 sf_use_s2(FALSE)
 z = st_crop(r, bb)
@@ -70,33 +82,34 @@ ggplot() +
   facet_wrap(vars(new_dim)) +
   coord_sf()
 
-# project all months in facet plot
+ggsave(file.path("/mnt/ecocast/projectdata/fishkillhabs/predictions", "km_allmonths_minmax_csf.png"), p, width = 9.5, height = 8, units="in")
 
-preds_l = lapply(seq(1, 12),
-                 function(mon) {
-                   a = read_stars(paste("/mnt/ecocast/projectdata/fishkillhabs/climatology/thetao_", mon, ".tif", sep=""))
-                   b = read_stars(paste("/mnt/ecocast/projectdata/fishkillhabs/climatology/so_", mon, ".tif", sep=""))
-                   
-                   z <- c(a,b, bathy, tolerance = 1e-06)
-                   names(z) = c("sst", "sss", "depth")
-                   
-                   clim = filter(ce, month == mon)
-                   
-                   preds = mutate(z, pred = ifelse(between(sst, clim$min_sst, clim$max_sst) & between(sss, clim$min_sss, clim$max_sss) & depth <= 500, 1, 0))
-                   
-                   preds["pred"]
-                 })
 
-names(preds_l) = month.abb
-r = do.call("c", preds_l)                                                                                                        
-r = st_redimension(r)                                                                                                            
-names(r) = "pred"
+# add haedat events
 
-p = ggplot() + 
-  geom_stars(data=r, aes(fill=pred)) +
+h = read_haedat()
+
+h_km = filter(h, causativeSpeciesName0 == "Karenia mikimotoi") |> 
+  mutate(new_dim = as.factor(format(as.Date(initialDate), format = "%b"))) |>
+  filter(!is.na(latitude), !is.na(longitude), !is.na(new_dim)) |>
+  st_as_sf(coords = c("longitude", "latitude"), crs=4326)
+
+h_kb = filter(h, causativeSpeciesName0 == "Karenia brevis") |> 
+  mutate(new_dim = as.factor(format(as.Date(initialDate), format = "%b"))) |>
+  filter(!is.na(latitude), !is.na(longitude), !is.na(new_dim)) |>
+  st_as_sf(coords = c("longitude", "latitude"), crs=4326)
+
+
+kb_florida = ggplot() + 
+  geom_stars(data=z, aes(fill=pred)) +
+  geom_sf(data = h_kb, color="red") +
   theme_bw() +
   theme(legend.position="none", axis.title = element_blank()) +
   facet_wrap(vars(new_dim)) +
   coord_sf()
 
-ggsave(file.path("/mnt/ecocast/projectdata/fishkillhabs/predictions", "km_allmonths_minmax_csf.png"), p, width = 9.5, height = 8, units="in")
+ggsave(file.path("/mnt/ecocast/projectdata/fishkillhabs/predictions", "kb_mean2sd_florida_haedat.svg"), kb_florida, width = 9.5, height = 8, units="in")
+
+
+h_ha = filter(h, causativeSpeciesName0 == "Heterosigma akashiwo", massMortal == 1, !is.na(latitude), !is.na(longitude))
+
