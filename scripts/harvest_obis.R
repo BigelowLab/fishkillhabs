@@ -1,4 +1,4 @@
-# Gather OBIS records for fish killing hab taxa of interest
+# Gather OBIS records for fish killing HAB taxa of interest
 
 source("setup.R")
 
@@ -6,11 +6,19 @@ species <- c("Margalefidinium polykrikoides",
              "Heterosigma akashiwo",
              "Noctiluca scintillans", 
              "Karenia mikimotoi",
-             "Karenia brevis")
+             "Karenia brevis",
+             "Alexandrium catenella",
+             "Chattonella marina",
+             "Pseudochattonella verruculosa",
+             "Prymnesium polylepis",
+             "Chrysochromulina leadbeateri")
 
 
 for (s in species) {
-  if (!file.exists(file.path(ROOT_DATA_PATH, sprintf("%s.gpkg", gsub(" ", "_", s, fixed = TRUE))))) {
+  cat(s, "\n")
+  if (!file.exists(file.path(data_path("obis"), 
+                             sprintf("%s.gpkg", gsub(" ", "_", s, fixed = TRUE))))) {
+    cat("downloading", s, "\n")
     fetch_obis(s)
   }
 }

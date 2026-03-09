@@ -2,15 +2,15 @@
 
 source("setup.R")
 
-species = "Alexandrium catenella"
+coast = read_coastline()
+mask = read_mask()
+depth_layer = read_depth(months = FALSE)
+
+species = "Noctiluca scintillans"
 
 obs <- read_obis(species)
 
 obs
-
-coast = read_coastline()
-mask = read_mask()
-depth_layer = read_depth(months = FALSE)
 
 xy = sf::st_coordinates(obs)
 m = stars::st_extract(depth_layer, xy)
@@ -49,6 +49,7 @@ nback_avg
 
 obsbkg = sapply(month.abb,
                 function(mon){ 
+                  cat(mon, "\n")
                   temp_x = obs |> filter(month == mon)
                   sample_background(temp_x,
                                     mask,

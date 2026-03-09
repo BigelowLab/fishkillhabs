@@ -66,6 +66,51 @@ find_climate_env_month <- function(x, species, method = c("min_max", "mean_sd")[
          })
 }
 
+predict_climate_env = function(ce, m, month=FALSE) {
+  
+  #' predicts areas within climate envelope upper and lower bounds for a single month
+  #' @param ce tibble containing one row describing upper and lower bounds for each variable in climate envelope
+  #' @param env stars object with all covariates and the dimensions lat and lon
+  
+  if (month) {
+    predict_climate_env_month(ce, env=m)
+  } else {
+    mutate(m, 
+           pred = ifelse(between(thetao, ce$min_sst, ce$max_sst) & 
+                           between(so, ce$min_sss, ce$max_sss) & 
+                           between(mlotst, ce$min_mld, ce$max_mld) & 
+                           between(bottomT, ce$min_sbt, ce$max_sbt) & 
+                           depth <= 500, 1, 0))
+  }
+}
+
+predict_climate_env_month = function(ce, env) {
+  
+  #' predicts areas within climate envelope upper and lower bounds for all months in a year
+  #' @param ce tibble containing one row describing upper and lower bounds for each variable in climate envelope
+  #' @param env stars object with all covariates and the dimensions lat, lon and month
+  preds_m = lapply(month.abb,
+                   function(mon){
+                     m = slice(env, month, mon)
+                     
+                     pred = mutate(m, 
+                                   pred = ifelse(between(thetao, ce$min_sst, ce$max_sst) & 
+                                                   between(so, ce$min_sss, ce$max_sss) & 
+                                                   between(mlotst, ce$min_mld, ce$max_mld) & 
+                                                   between(bottomT, ce$min_sbt, ce$max_sbt) & 
+                                                   depth <= 500, 1, 0))
+                     pred["pred"]
+                   })
+  
+  names(preds_m) = month.abb
+  
+  r = do.call("c", preds_m)                                                                                                        
+  r = st_redimension(r)                                                                                                            
+  names(r) = "pred"
+  
+  return(r)
+}
+
 
 plot_climate_env <- function(x) {
   pivot_longer(x, cols = c(sst, sss)) |>
