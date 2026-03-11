@@ -16,7 +16,6 @@ ggplot() +
   theme_bw() +
   coord_sf()
 
-
 # project all months in facet plot
 
 preds_m = predict_climate_env(ce, env, month=TRUE)
@@ -29,7 +28,12 @@ p = ggplot() +
   facet_wrap(vars(new_dim)) +
   coord_sf()
 
-ggsave(file.path("/mnt/ecocast/projectdata/fishkillhabs/predictions", "cm_allmonths_mean1sd.png"), p, width = 9.5, height = 8, units="in")
+filename = sprintf("%s_%s_%s.png",
+                   species = "kb",
+                   mtype = "mean1sd",
+                   region = "floridagulf")
+
+ggsave(file.path(data_path("predictions"), filename), p, width = 9.5, height = 8, units="in")
 
 library(cofbb)
 
@@ -66,7 +70,12 @@ p = ggplot() +
 
 p
 
-ggsave(file.path("/mnt/ecocast/projectdata/fishkillhabs/predictions", "cm_allmonths_mean1sd_csf.png"), p, width = 9.5, height = 8, units="in")
+filename = sprintf("%s_%s_%s.png",
+                   species = "kb",
+                   mtype = "mean1sd",
+                   region = "floridagulf")
+
+ggsave(file.path(data_path("predictions"), filename), p, width = 9.5, height = 8, units="in")
 
 
 # add haedat events
@@ -79,8 +88,8 @@ h_km = filter(h, causativeSpeciesName0 == "Karenia mikimotoi") |>
   st_as_sf(coords = c("longitude", "latitude"), crs=4326)
 
 h_kb = filter(h, causativeSpeciesName0 == "Karenia brevis") |> 
-  mutate(new_dim = as.factor(format(as.Date(initialDate), format = "%b"))) |>
-  filter(!is.na(latitude), !is.na(longitude), !is.na(new_dim)) |>
+  mutate(month = as.factor(format(as.Date(initialDate), format = "%b"))) |>
+  filter(!is.na(latitude), !is.na(longitude), !is.na(month)) |>
   st_as_sf(coords = c("longitude", "latitude"), crs=4326)
 
 cm = filter(h, causativeSpeciesName0 == "Chattonella marina") |> 
@@ -113,6 +122,11 @@ p = ggplot() +
 
 p
 
-ggsave(file.path("/mnt/ecocast/projectdata/fishkillhabs/predictions", "kb_mean1sd_floridagulf_haedat.png"), p, width = 9.5, height = 8, units="in")
+filename = sprintf("%s_%s_%s_haedat.png",
+                   species = "kb",
+                   mtype = "mean1sd",
+                   region = "floridagulf")
+
+ggsave(file.path(data_path("predictions"), filename), p, width = 9.5, height = 8, units="in")
 
 
