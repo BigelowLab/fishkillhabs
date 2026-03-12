@@ -80,36 +80,15 @@ ggsave(file.path(data_path("predictions"), filename), p, width = 9.5, height = 8
 
 # add haedat events
 
-h = read_haedat()
+h_km = read_haedat(species = "Karenia mikimotoi")
 
-h_km = filter(h, causativeSpeciesName0 == "Karenia mikimotoi") |> 
-  mutate(new_dim = as.factor(format(as.Date(initialDate), format = "%b"))) |>
-  filter(!is.na(latitude), !is.na(longitude), !is.na(new_dim)) |>
-  st_as_sf(coords = c("longitude", "latitude"), crs=4326)
+h_kb = read_haedat(species = "Karenia brevis")
+  
+cm = read_haedat(species = "Chattonella marina")
 
-h_kb = filter(h, causativeSpeciesName0 == "Karenia brevis") |> 
-  mutate(month = as.factor(format(as.Date(initialDate), format = "%b"))) |>
-  filter(!is.na(latitude), !is.na(longitude), !is.na(month)) |>
-  st_as_sf(coords = c("longitude", "latitude"), crs=4326)
+pv = read_haedat(species = "Pseudochattonella verruculosa")
 
-cm = filter(h, causativeSpeciesName0 == "Chattonella marina") |> 
-  mutate(new_dim = as.factor(format(as.Date(initialDate), format = "%b"))) |>
-  filter(!is.na(latitude), !is.na(longitude), !is.na(new_dim)) |>
-  st_as_sf(coords = c("longitude", "latitude"), crs=4326)
-
-
-pv = filter(h, causativeSpeciesName0 == "Pseudochattonella verruculosa") |> 
-  mutate(new_dim = as.factor(format(as.Date(initialDate), format = "%b"))) |>
-  filter(!is.na(latitude), !is.na(longitude), !is.na(new_dim)) |>
-  st_as_sf(coords = c("longitude", "latitude"), crs=4326)
-
-
-
-ha = filter(h, causativeSpeciesName0 == "Heterosigma akashiwo") |> 
-  mutate(new_dim = as.factor(format(as.Date(initialDate), format = "%b"))) |>
-  filter(!is.na(latitude), !is.na(longitude), !is.na(new_dim)) |>
-  st_as_sf(coords = c("longitude", "latitude"), crs=4326) |>
-  filter(countryName == "KOREA, REPUBLIC OF")
+ha = read_haedat(species = "Heterosigma akashiwo", country = c("KOREA, REPUBLIC OF"))
 
 
 p = ggplot() + 

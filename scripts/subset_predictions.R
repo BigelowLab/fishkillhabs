@@ -37,19 +37,20 @@ z = st_crop(p, bb)
 
 gg = ggplot2::ggplot() +
   stars::geom_stars(data = z[2]) + 
-  #geom_sf(data = h_kb, color="red") +
+  geom_sf(data = ha, color="darkgreen") +
   ggplot2::scale_fill_viridis_c(option = "magma", 
                                 limits = c(0,1), 
                                 na.value = "grey50") +
   facet_wrap(vars(month)) +
-  coord_sf()
+  coord_sf() +
+  theme(legend.position = "bottom")
 
 gg
 
 filename = sprintf("%s_%s_%s.png",
-                   species = "ac",
+                   species = "ha",
                    mtype = "rf-v3",
-                   region = "nwa")
+                   region = "korea")
 
 ggsave(file.path(data_path("predictions"), filename), gg, width = 9.5, height = 8, units="in")
 
@@ -62,18 +63,19 @@ z = st_crop(pa, bb)
 
 gg = ggplot2::ggplot() +
   stars::geom_stars(data = z[2], na.action=na.omit) + 
-  #geom_sf(data = h_kb, color="red") +
+  geom_sf(data = ha, color="red") +
   #ggplot2::scale_fill_viridis_d() + 
   scale_fill_manual(values = c("purple", "yellow", "grey")) +
   facet_wrap(vars(month)) +
-  coord_sf()
+  coord_sf() +
+  theme(legend.position = "bottom")
 
 gg
 
 filename = sprintf("%s_%s_%s.png",
-                   species = "ac",
+                   species = "ha",
                    mtype = "rf-v3-pa",
-                   region = "nwa")
+                   region = "korea")
 
 ggsave(file.path(data_path("predictions"), filename), gg, width = 9.5, height = 8, units="in")
 

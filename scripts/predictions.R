@@ -2,10 +2,8 @@
 
 source("setup.R")
 
-species = "Alexandrium catenella"
+species = "Heterosigma akashiwo"
 model_v = "v3"
-
-#mask = read_mask()
 
 cfg = read_configuration(scientificname = species,
                          version = model_v, 
