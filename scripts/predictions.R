@@ -2,10 +2,10 @@
 
 source("setup.R")
 
-species = "Karenia brevis"
-model_v = "v2"
+species = "Alexandrium catenella"
+model_v = "v3"
 
-mask = read_mask()
+#mask = read_mask()
 
 cfg = read_configuration(scientificname = species,
                          version = model_v, 
@@ -14,7 +14,10 @@ cfg = read_configuration(scientificname = species,
 present_conditions = read_covariates() |>
   mutate(depth = log10(depth))
 
-covar_crop = st_crop(present_conditions, mask)
+present_conditions = st_warp(present_conditions, crs = st_crs(present_conditions), cellsize = 0.33)
+
+#sf_use_s2(FALSE)
+#covar_crop = st_crop(present_conditions, mask)
 
 file = gsub(" ", "-", sprintf("%s-%s-model_fits", species, model_v))
 
@@ -24,6 +27,10 @@ model_fits
 
 nowcast = predict_stars(model_fits, present_conditions)
 nowcast
+
+nowcast_crop = predict_stars(model_fits, covar_crop)
+nowcast
+
 
 plot_prediction(nowcast['default_glm'])
 

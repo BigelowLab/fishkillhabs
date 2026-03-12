@@ -6,7 +6,7 @@ coast = read_coastline()
 mask = read_mask()
 depth_layer = read_depth(months = FALSE)
 
-species = "Noctiluca scintillans"
+species = "Chattonella marina"
 
 obs <- read_obis(species)
 

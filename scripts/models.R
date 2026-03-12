@@ -2,8 +2,8 @@
 
 source("setup.R")
 
-species = "Alexandrium catenella"
-model_v = "v2"
+species = "Pseudochattonella verruculosa"
+model_v = "v3"
 
 cfg = read_configuration(scientificname = species, version = model_v)
 
@@ -14,19 +14,34 @@ model_input = read_model_input(scientificname = species,
   select(all_of(c("class", cfg$keep))) |>
   drop_na()
 
+model_v = "v3"
+
+
+#model_input_split = spatial_initial_split(model_input, 
+#                                          prop = 1 / 5,     
+#                                          strategy = spatial_block_cv)
 
 model_input_split = spatial_initial_split(model_input, 
                                           prop = 1 / 5,     
-                                          strategy = spatial_block_cv)
+                                          strategy = spatial_buffer_vfold_cv,
+                                          radius=NULL,
+                                          buffer = NULL)
+
 
 #model_input_split
 autoplot(model_input_split)
 
 tr_data = training(model_input_split)
-cv_tr_data <- spatial_block_cv(tr_data,
-                               v = 5,     
-                               cellsize = grid_cellsize(model_input),
-                               offset = grid_offset(model_input) + 0.00001)
+
+#cv_tr_data <- spatial_block_cv(tr_data,
+#                               v = 5,     
+#                               cellsize = grid_cellsize(model_input),
+#                               offset = grid_offset(model_input) + 0.00001)
+
+cv_tr_data <- spatial_buffer_vfold_cv(tr_data,
+                                      v = 5,
+                                      radius=NULL,
+                                      buffer = NULL)
 
 one_row_of_training_data = dplyr::slice(tr_data,1)
 rec = recipe(one_row_of_training_data, formula = class ~ .)
@@ -78,21 +93,6 @@ wflow <- wflow |>
                grid = 3,
                metrics = metrics, 
                verbose = TRUE)
-
-## Warning message:
-##   There are existing options that are being modified
-## default_glm: 'resamples', 'grid', 'metrics'
-## default_rf: 'resamples', 'grid', 'metrics'
-## default_btree: 'resamples', 'grid', 'metrics'
-## default_maxent: 'resamples', 'grid', 'metrics' 
-
-#i 3 of 4 tuning:     default_btree
-#i Creating pre-processing data to finalize unknown parameter: mtry
-#→ A | warning: Passed invalid argument 'info' - entries on it should be passed as direct arguments. This warning will become an error in a future version., 
-#Passed invalid function arguments: nthread. These should be passed as a list to argument 'params'. Conversion from argument to 'params' entry will be done automatically, 
-#but this behavior will become an error in a future version., Parameter 'watchlist' has been renamed to 'evals'. This warning will become an error in a future version., 
-#Argument 'objective' is only for custom objectives. For built-in objectives, pass the objective under 'params'. This warning will become an error in a future version.
-#There were issues with some computations   A: x15
 
 #autoplot(wflow)
 

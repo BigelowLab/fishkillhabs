@@ -29,7 +29,7 @@ for (f in list.files("functions", pattern = glob2rx("*.R"), full.names = TRUE)) 
 # Finally set path to the data hopefully as a sibling to the project directory
 # The data directory has top level subdirectories ("buoys", "coast", "brickman")
 # that contain data used by all, and to which you wil add your own data.
-ROOT_DATA_PATH = "/mnt/s1/projects/ecocast/projectdata/fishkillhabs/"
+ROOT_DATA_PATH = "/mnt/s1/projects/ecocast/projectdata/fishkillhabs"
 
 if (!dir.exists(ROOT_DATA_PATH)) {
   ok = dir.create(ROOT_DATA_PATH, recursive = TRUE)

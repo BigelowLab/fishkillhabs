@@ -2,8 +2,8 @@
 
 source("setup.R")
 
-species = "Alexandrium catenella"
-model_v = "v2"
+species = "Pseudochattonella verruculosa"
+model_v = "v3"
 
 model_input = read_model_input(scientificname = species)
 
