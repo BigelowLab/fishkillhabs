@@ -1,4 +1,4 @@
-# Initial SDM method test
+# Build and train species distribution models
 
 source("setup.R")
 

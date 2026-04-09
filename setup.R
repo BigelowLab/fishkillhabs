@@ -4,7 +4,10 @@
 packages = list(
   CRAN = c("remotes", "ggplot2", "readr", "tidyr", "rnaturalearth", "robis", 
             "sf", "dplyr", "patchwork", "stars", "tidysdm", "effectplots", "caret",
-           "andreas", "ranger", "cofbb")
+           "andreas", "ranger", "cofbb"),
+  GITHUB = list(
+    andreas = c(repos = "BigelowLab/andreas", ref = "main"),
+    cofbb = c(repos = "BigelowLab/cofbb", ref = "main"))
 )
 
 # check for prior installations and install locally as needed
@@ -16,9 +19,18 @@ if ("CRAN" %in% names(packages)){
   }
 }
 
+if ("GITHUB" %in% names(packages)){
+  ix = names(packages$GITHUB) %in% installed
+  for(package in names(packages$GITHUB)[!ix]) {
+    remotes::install_github(getElement(packages$GITHUB[[package]], "repos"),
+                            ref = getElement(packages$GITHUB[[package]], "ref"))
+  }
+}
+
 # load packages
 suppressPackageStartupMessages({
   for (package in packages$CRAN) library(package, character.only = TRUE)
+  for (package in names(packages$GITHUB)) library(package, character.only = TRUE)
 })
 
 # Next we check the 'functions' directory for ".R" files and source those
@@ -29,6 +41,7 @@ for (f in list.files("functions", pattern = glob2rx("*.R"), full.names = TRUE)) 
 # Finally set path to the data hopefully as a sibling to the project directory
 # The data directory has top level subdirectories ("buoys", "coast", "brickman")
 # that contain data used by all, and to which you wil add your own data.
+
 ROOT_DATA_PATH = "/mnt/s1/projects/ecocast/projectdata/fishkillhabs"
 
 if (!dir.exists(ROOT_DATA_PATH)) {

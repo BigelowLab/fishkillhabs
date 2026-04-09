@@ -1,4 +1,4 @@
-## match species occurrences and background points with covariates
+# Match species occurrences and background points with environmental covariates
 
 source("setup.R")
 
