@@ -2,7 +2,7 @@
 
 source("setup.R")
 
-species = "Pseudochattonella verruculosa"
+species = "Chattonella marina"
 model_v = "v3"
 
 cfg = read_configuration(scientificname = species, version = model_v)

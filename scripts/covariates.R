@@ -2,7 +2,7 @@
 
 source("setup.R")
 
-species = "Pseudochattonella verruculosa"
+species = "Chattonella marina"
 model_v = "v3"
 
 model_input = read_model_input(scientificname = species)
@@ -20,12 +20,18 @@ present = read_covariates(depth = TRUE)
 
 present
 
+#attribute names changed - double check these are correct
+present = setNames(present, c("mlotst", "so", "bottomT", "thetao", "depth"))
+
 variables = extract_covars(present, model_input, form = "wide")
+
+variables
 
 variables = variables |>
   mutate(class = model_input$class) |> 
   select(-.id) |>
   drop_na()
+
 
 plot_pres_vs_bg(variables |> select(-month), "class")
 

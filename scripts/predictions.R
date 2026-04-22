@@ -2,7 +2,7 @@
 
 source("setup.R")
 
-species = "Heterosigma akashiwo"
+species = "Chattonella marina"
 model_v = "v3"
 
 cfg = read_configuration(scientificname = species,
@@ -13,6 +13,12 @@ present_conditions = read_covariates() |>
   mutate(depth = log10(depth))
 
 present_conditions = st_warp(present_conditions, crs = st_crs(present_conditions), cellsize = 0.33)
+
+present_conditions
+
+present_conditions = setNames(present_conditions, c("mlotst", "so", "bottomT", "thetao", "depth"))
+
+present_conditions
 
 #sf_use_s2(FALSE)
 #covar_crop = st_crop(present_conditions, mask)

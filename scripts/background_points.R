@@ -43,20 +43,35 @@ all_counts
 
 #bias_map = rasterize_point_density(obs, mask)
 
-nback_avg = mean(all_counts$n) |>
-  round()
+
+if (nrow(all_counts) < 12) {
+  nback_avg = round(sum(all_counts$n)/12)
+} else {
+  nback_avg = mean(all_counts$n) |>
+    round()
+}
 nback_avg
+
 
 obsbkg = sapply(month.abb,
                 function(mon){ 
                   cat(mon, "\n")
                   temp_x = obs |> filter(month == mon)
-                  sample_background(temp_x,
-                                    mask,
-                                    method = "random",
-                                    return_pres = TRUE,
-                                    n = nback_avg) |> 
-                    mutate(month = mon, .before = 1)
+                  if (nrow(temp_x)==0){ # if a species has no presences/obs in a month, pass all observations, sample nback_avg background, dont return presences
+                    sample_background(obs,
+                                      mask,
+                                      method = "random",
+                                      return_pres = FALSE,
+                                      n = nback_avg) |> 
+                      mutate(month = mon, .before = 1)} 
+                  else {
+                    sample_background(temp_x,
+                                      mask,
+                                      method = "random",
+                                      return_pres = TRUE,
+                                      n = nback_avg) |> 
+                      mutate(month = mon, .before = 1)
+                  }
                 }, simplify = FALSE) |>
   bind_rows() |>
   mutate(month = factor(month, levels = month.abb))
