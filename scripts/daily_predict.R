@@ -32,23 +32,23 @@ mtype = model_fit_spec(model_fit)
 
 p = predict(daily_covar, model, type = get_response_type(mtype))[1]
 
-#colors = c("magma",
-#           "inferno",
-#           "plasma",
-#           "viridis",
-#           "cividis",
-#           "rocket",
-#           "mako",
-#           "turbo")[1]
-#
-#risk_map = ggplot2::ggplot() +
-#  stars::geom_stars(data = p) + 
-#  ggplot2::scale_fill_viridis_c(option = colors[1], 
-#                                limits = c(0,1), 
-#                                na.value = "grey50")
-#risk_map
+colors = c("magma",
+           "inferno",
+           "plasma",
+           "viridis",
+           "cividis",
+           "rocket",
+           "mako",
+           "turbo")[1]
 
-species <- c("Margalefidinium polykrikoides",
+risk_map = ggplot2::ggplot() +
+  stars::geom_stars(data = p) + 
+  ggplot2::scale_fill_viridis_c(option = colors[1], 
+                                limits = c(0,1), 
+                                na.value = "grey50")
+risk_map
+
+species <- c(#"Margalefidinium polykrikoides",
              "Heterosigma akashiwo",
              "Noctiluca scintillans", 
              "Karenia mikimotoi",
@@ -58,7 +58,7 @@ species <- c("Margalefidinium polykrikoides",
              "Pseudochattonella verruculosa",
              "Prymnesium polylepis",
              "Chrysochromulina leadbeateri")
-
+model_v = "v3"
 risk_maps = lapply(species,
                    function(s) {
                      cfg = read_configuration(scientificname = s,
@@ -75,12 +75,20 @@ risk_maps = lapply(species,
                      mtype = model_fit_spec(model_fit)
                      
                      p = predict(daily_covar, model, type = get_response_type(mtype))[1]
+                     names(p) = "predicted_probability"
                      
-                     outpath = file.path("predictions", sprintf("%s-riskmap-%s.tif", 
-                                                                gsub(" ", "_", species[1], fixed = TRUE),
-                                                                Sys.Date()))
+                     outpath_stars = file.path("predictions", sprintf("%s-riskmap-%s.tif", 
+                                                                      gsub(" ", "_", s, fixed = TRUE),
+                                                                      Sys.Date()))
                      
-                     write_stars(p, outpath)
+                     write_stars(p, outpath_stars)
+                     
+                     outpath_table = file.path("predictions", sprintf("%s-riskmap-%s.csv.gz", 
+                                                                      gsub(" ", "_", s, fixed = TRUE),
+                                                                      Sys.Date()))
+                     as.data.frame(p) |> 
+                       filter(!is.na(predicted_probability)) |>
+                       write_csv(outpath_table)
                    })
 
 # format for google cloud
