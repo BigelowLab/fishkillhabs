@@ -27,8 +27,46 @@ read_covariates <- function(depth=TRUE) {
 }
 
 
+read_covariates_daily = function(mask = TRUE,
+                                 deptht = 500,
+                                 downsample = TRUE,
+                                 ds_n=3) {
+  path = copernicus::copernicus_path("world", "GLOBAL_ANALYSISFORECAST_PHY_001_024")
+  db <- andreas::read_database(path) |>
+    dplyr::filter(variable %in% c("thetao", "so", "mlotst", "tob"),
+                  date == Sys.Date())
+  s = andreas::read_andreas(db, path)
+  
+  depth = read_depth(months = FALSE) |>
+    st_set_crs(st_crs(s)) |>
+    copernicus::set_point(NA)
+  
+  daily_covar = c(s, depth) |>
+    setNames(c("mlotst", "so", "bottomT", "thetao", "depth")) |>
+    mutate(depth = log10(depth))
+  
+  if (mask) {
+    mask=depth[depth<=deptht]
+    mask$depth[]
+    ix = is.na(mask$depth)
+    mask$depth[][!ix] = 1
+    mask
+    
+    # masked
+    daily_covar = daily_covar*mask
+  }
+  
+  if (downsample) {
+    daily_covar = stars::st_downsample(daily_covar, n=ds_n)
+  }
+  return(daily_covar)
+}
+
+
 read_depth <- function(months = FALSE) {
   depth = read_stars("/mnt/ecocast/projectdata/fishkillhabs/bathy.tif")
+  #depth = andreas::read_static(name = "deptho",
+  #                             path = copernicus::copernicus_path("world", "GLOBAL_ANALYSISFORECAST_PHY_001_024"))
   names(depth) = c("depth")
   
   if (months) {

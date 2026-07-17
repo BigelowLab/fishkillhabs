@@ -3,29 +3,33 @@
 # CRAN packages to load
 packages = list(
   CRAN = c("remotes", "ggplot2", "readr", "tidyr", "rnaturalearth", "robis", 
-            "sf", "dplyr", "patchwork", "stars", "tidysdm", "effectplots", "caret",
-           "andreas", "ranger", "cofbb"),
+            "sf", "dplyr", "patchwork", "stars", "tidysdm", "effectplots", "caret", "ranger", "cofbb"),
   GITHUB = list(
     andreas = c(repos = "BigelowLab/andreas", ref = "main"),
-    cofbb = c(repos = "BigelowLab/cofbb", ref = "main"))
+    copernicus = c(repos = "BigelowLab/copernicus", ref = "main"),
+    cofbb = c(repos = "BigelowLab/cofbb", ref = "main"),
+    twinkle = c(repos = "BigelowLab/twinkle", ref = "main")
+    )
 )
 
+# install blocks for setup on new machine
+#
 # check for prior installations and install locally as needed
-installed = installed.packages() |> rownames()
-if ("CRAN" %in% names(packages)){
-  ix = packages$CRAN %in% installed
-  for (package in packages$CRAN[!ix]) {
-    install.packages(package)
-  }
-}
+#installed = installed.packages() |> rownames()
+#if ("CRAN" %in% names(packages)){
+#  ix = packages$CRAN %in% installed
+#  for (package in packages$CRAN[!ix]) {
+#    install.packages(package)
+#  }
+#}
 
-if ("GITHUB" %in% names(packages)){
-  ix = names(packages$GITHUB) %in% installed
-  for(package in names(packages$GITHUB)[!ix]) {
-    remotes::install_github(getElement(packages$GITHUB[[package]], "repos"),
-                            ref = getElement(packages$GITHUB[[package]], "ref"))
-  }
-}
+#if ("GITHUB" %in% names(packages)){
+#  ix = names(packages$GITHUB) %in% installed
+#  for(package in names(packages$GITHUB)[!ix]) {
+#    remotes::install_github(getElement(packages$GITHUB[[package]], "repos"),
+#                            ref = getElement(packages$GITHUB[[package]], "ref"))
+#  }
+#}
 
 # load packages
 suppressPackageStartupMessages({
