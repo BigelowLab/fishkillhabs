@@ -20,7 +20,7 @@ present_conditions = setNames(present_conditions, c("mlotst", "so", "bottomT", "
 
 present_conditions
 
-#sf_use_s2(FALSE)
+sf_use_s2(FALSE)
 #covar_crop = st_crop(present_conditions, mask)
 
 file = gsub(" ", "-", sprintf("%s-%s-model_fits", species, model_v))
